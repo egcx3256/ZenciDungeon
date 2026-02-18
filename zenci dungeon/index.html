@@ -1,0 +1,2311 @@
+<!doctype html>
+<html lang="tr">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Rap & Dragons — Tavern Dungeon Idle</title>
+
+  <!-- (Logo/manifest eklemek istersen buraya linkleri ekleyeceksin) -->
+  <meta name="theme-color" content="#080c18">
+
+  <style>
+    :root { font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; }
+    body { margin:0; background:#080c18; color:#e9ecff; }
+    header{
+      position: sticky; top:0; z-index:5;
+      padding: 12px 14px;
+      background: rgba(8,12,24,.92);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid rgba(255,255,255,.08);
+    }
+    h1{ margin:0; font-size:15px; letter-spacing:.2px; }
+    main{ max-width: 1120px; margin:0 auto; padding: 12px 12px 110px; }
+    .grid{ display:grid; gap:12px; grid-template-columns: 1fr; }
+    @media (min-width: 980px){ .grid{ grid-template-columns: 1.3fr .7fr; } }
+    .card{
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 14px;
+      padding: 12px;
+    }
+    .row{ display:flex; gap:10px; flex-wrap: wrap; align-items:center; }
+    .pill{
+      padding: 6px 10px; border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.08);
+      font-size:12px;
+    }
+    button{
+      background:#6b7cff; color:white; border:0;
+      border-radius: 12px; padding: 10px 12px;
+      font-weight: 900; cursor:pointer;
+    }
+    button.secondary{
+      background: rgba(255,255,255,.10);
+      border: 1px solid rgba(255,255,255,.14);
+    }
+    button.danger{ background:#ff4d6d; }
+    button:disabled{ opacity:.55; cursor:not-allowed; }
+    .tiny{ font-size:12px; opacity:.9; }
+    .muted{ opacity:.8; }
+    .log{
+      height: 220px; overflow:auto; padding: 10px;
+      background: rgba(0,0,0,.28);
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .log p{ margin:0 0 6px; font-size:13px; line-height: 1.25rem; color:#dbe0ff; }
+    .bar{
+      height: 10px; border-radius: 999px;
+      background: rgba(255,255,255,.12);
+      overflow:hidden;
+      border: 1px solid rgba(255,255,255,.10);
+    }
+    .bar > i{ display:block; height:100%; background:#38d39f; width:50%; }
+    .partyList{ display:grid; gap:8px; }
+    .member{
+      display:grid; gap:6px; padding: 10px;
+      border-radius: 12px;
+      background: rgba(255,255,255,.05);
+      border: 1px solid rgba(255,255,255,.08);
+    }
+    .member .top{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .member .name{ font-weight: 950; }
+    .tabs{ display:flex; gap:10px; flex-wrap:wrap; }
+    .tabbtn{ border-radius: 999px; padding: 8px 10px; }
+    .tabbtn.active{ background:#38d39f; color:#071018; border:0; }
+    canvas{
+      width: 100%;
+      max-width: 100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(0,0,0,.15));
+    }
+    .footbar{
+      position: fixed; left:0; right:0; bottom:0;
+      padding: 10px 12px;
+      background: rgba(8,12,24,.94);
+      backdrop-filter: blur(8px);
+      border-top: 1px solid rgba(255,255,255,.08);
+      display:flex; gap:10px; justify-content:center; flex-wrap:wrap;
+      z-index: 10;
+    }
+    .twoCol{ display:grid; gap:10px; grid-template-columns: 1fr; }
+    @media (min-width: 520px){ .twoCol{ grid-template-columns: 1fr 1fr; } }
+    .miniGrid{ display:grid; gap:10px; grid-template-columns: 1fr; }
+    @media (min-width: 520px){ .miniGrid{ grid-template-columns: 1fr 1fr; } }
+    select{
+      background: rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      color:#e9ecff;
+      border-radius: 12px;
+      padding: 9px 10px;
+      font-weight: 800;
+    }
+    .inv{ display:grid; gap:8px; }
+    .item{
+      padding:10px;
+      border-radius:12px;
+      background: rgba(255,255,255,.05);
+      border:1px solid rgba(255,255,255,.08);
+      display:grid; gap:6px;
+    }
+    .item .top{ display:flex; justify-content:space-between; gap:10px; align-items:center; }
+    .badge{
+      padding:4px 8px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.08);
+      border:1px solid rgba(255,255,255,.10);
+      font-size: 12px;
+      font-weight: 900;
+    }
+    .spellRow{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .eventBox{
+      padding: 10px;
+      border-radius: 12px;
+      background: rgba(0,0,0,.22);
+      border: 1px solid rgba(255,255,255,.10);
+      display:grid; gap:10px;
+    }
+  </style>
+</head>
+
+<body>
+<header>
+  <h1>🐉 Rap & Dragons — Rooms + Relics + Events + Prestige + Slots + SFX</h1>
+  <div class="tiny muted" style="margin-top:6px">
+    Not: “Smoke Token” tamamen oyun içi para birimi (gerçek hayatta sigara zararlıdır).
+    <span class="pill" style="margin-left:8px">👆 Başlığa 4x tıkla → Admin</span>
+  </div>
+</header>
+
+<main>
+  <div class="grid">
+    <section class="card">
+      <div class="row">
+        <span class="pill">🧭 Room: <b id="roomType">Fight</b> • #<b id="roomNo">1</b></span>
+        <span class="pill">🗺️ Depth: <b id="floor">1</b></span>
+        <span class="pill">👾 Threat: <b id="enemyLv">1</b></span>
+        <span class="pill">💰 Gold: <b id="gold">0</b></span>
+        <span class="pill">🚬 Smoke Token: <b id="smokes">0</b></span>
+        <span class="pill">🗝️ Keys: <b id="keys">0</b></span>
+        <span class="pill">✨ Mana: <b id="mana">0</b>/<b id="manaMax">0</b></span>
+        <span class="pill">🏠 Party Cap: <b id="cap">2</b></span>
+        <span class="pill">👥 Visitors: <b id="visitors">0</b>/<b id="visCap">0</b></span>
+        <span class="pill">🏁 Final: <b id="finalAt">100</b></span>
+      </div>
+
+      <div style="height:12px"></div>
+      <canvas id="scene" width="960" height="260"></canvas>
+
+      <div style="height:12px"></div>
+
+      <div class="twoCol">
+        <div>
+          <b id="enemyName">-</b>
+          <div class="tiny muted">HP</div>
+          <div class="bar"><i id="enemyHpBar"></i></div>
+          <div class="row tiny" style="margin-top:6px">
+            <span class="pill">❤️ <span id="enemyHp">0</span>/<span id="enemyHpMax">0</span></span>
+            <span class="pill">🗡️ ATK <span id="enemyAtk">0</span></span>
+            <span class="pill">🛡️ AC <span id="enemyAc">0</span></span>
+            <span class="pill">🎲 Trait <span id="enemyTrait">-</span></span>
+            <span class="pill">🧿 Debuffs <span id="enemyDebuffs">-</span></span>
+            <span class="pill">🛡️ Buffs <span id="partyBuffs">-</span></span>
+          </div>
+
+          <div style="height:10px"></div>
+          <b>🪄 Spells</b>
+          <div class="tiny muted">Cooldown + mana var. Buff/debuff/heal/hasar.</div>
+          <div style="height:8px"></div>
+          <div class="spellRow">
+            <button id="spellFire" class="secondary">🔥 Fireball</button>
+            <button id="spellWeak" class="secondary">🕸 Weakness</button>
+            <button id="spellShield" class="secondary">🛡 Shield</button>
+            <button id="spellHeal" class="secondary">✨ Heal</button>
+          </div>
+
+          <div style="height:12px"></div>
+          <b>🧿 Relics (Run)</b>
+          <div class="tiny muted">Treasure/Event/Boss’tan gelir. Reincarnate ile çoğu sıfırlanır (meta “keep slot” açabilirsin).</div>
+          <div class="row tiny" id="relicRow" style="margin-top:8px"></div>
+        </div>
+
+        <div>
+          <b>📜 Log</b>
+          <div class="log" id="log"></div>
+        </div>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <b>👥 Party</b>
+      <div class="partyList" id="party"></div>
+    </section>
+
+    <aside class="card">
+      <div class="tabs">
+        <button class="tabbtn secondary active" id="tabRun">🧭 Run</button>
+        <button class="tabbtn secondary" id="tabTavern">🍺 Tavern</button>
+        <button class="tabbtn secondary" id="tabShop">🛒 Shop</button>
+        <button class="tabbtn secondary" id="tabInventory">🎒 Inventory</button>
+        <button class="tabbtn secondary" id="tabPrestige">♻️ Prestige</button>
+      </div>
+
+      <div style="height:10px"></div>
+
+      <div class="row">
+        <select id="slotPick">
+          <option value="1">Slot 1</option>
+          <option value="2">Slot 2</option>
+          <option value="3">Slot 3</option>
+        </select>
+        <button id="toggleBtn" class="secondary">⏸ Pause</button>
+        <button id="saveBtn" class="secondary">💾 Save</button>
+        <button id="loadBtn" class="secondary">📂 Load</button>
+        <button id="resetBtn" class="danger">🗑 Reset</button>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <div class="row">
+        <button id="muteBtn" class="secondary">🔊 SFX</button>
+        <button id="adminBtn" class="secondary">🛠 Admin Cmd</button>
+      </div>
+
+      <div style="height:12px"></div>
+
+      <!-- RUN PANEL -->
+      <div id="panelRun" class="card" style="padding:12px; background: rgba(0,0,0,.18)">
+        <b>🧭 Rooms (Soda Dungeon loop)</b>
+        <div class="tiny muted">Auto-Explore ile oda oda akarsın. Event room’da seçim yapmadan ilerlemez.</div>
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <button id="autoBtn" class="secondary">🤖 Auto: ON</button>
+          <button id="nextRoomBtn">➡️ Next Room</button>
+          <button id="fleeBtn" class="secondary">🏃 Flee (mini ceza)</button>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="eventBox" id="eventBox" style="display:none">
+          <b id="eventTitle">Event</b>
+          <div class="tiny muted" id="eventDesc">-</div>
+          <div class="row" style="margin-top:4px">
+            <button id="eventA" class="secondary">A</button>
+            <button id="eventB" class="secondary">B</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+        <div class="row tiny">
+          <span class="pill">🏆 Best Depth (this run): <b id="bestRun">1</b></span>
+          <span class="pill">📌 Best Depth (all time): <b id="bestAll">1</b></span>
+          <span class="pill">✅ Clears: <b id="clears">0</b></span>
+        </div>
+      </div>
+
+      <!-- TAVERN PANEL -->
+      <div id="panelTavern" class="card" style="display:none; padding:12px; background: rgba(0,0,0,.18)">
+        <b>🍺 Tavern Upgrades</b>
+        <div class="tiny muted">Bed/Table/Stool al → visitor cap + party cap artar + daha iyi class gelme şansı.</div>
+        <div style="height:10px"></div>
+
+        <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+          <b>🏠 Renovations</b>
+          <div class="tiny muted">Furniture: visitor cap + party cap + class quality</div>
+          <div style="height:10px"></div>
+
+          <div class="row">
+            <span class="pill">🛏️ Beds: <b id="bedsLv">0</b></span>
+            <button id="buyBedBtn">Buy (<span id="bedCost"></span>)</button>
+          </div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <span class="pill">🪑 Stools: <b id="stoolsLv">0</b></span>
+            <button id="buyStoolBtn">Buy (<span id="stoolCost"></span>)</button>
+          </div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <span class="pill">🧾 Tables: <b id="tablesLv">0</b></span>
+            <button id="buyTableBtn">Buy (<span id="tableCost"></span>)</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+          <b>👣 Visitors (Recruit Queue)</b>
+          <div class="tiny muted">Zamanla tipler gelir. “Invite” ile party’ye alırsın.</div>
+          <div style="height:10px"></div>
+
+          <div class="row">
+            <button id="inviteBtn">🎤 Invite to Party</button>
+            <button id="clearVisitorsBtn" class="secondary">🧹 Clear Visitors</button>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+          <b>👤 Recruit (direct)</b>
+          <div class="tiny muted">Gold ile direkt recruit. Class seçebilirsin.</div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <select id="classPick">
+              <option value="ANY">Any Class</option>
+              <option value="Rogue">Rogue</option>
+              <option value="Fighter">Fighter</option>
+              <option value="Cleric">Cleric</option>
+              <option value="Mage">Mage</option>
+            </select>
+            <span class="pill">Maliyet: <b id="hireCost">70</b> gold</span>
+            <button id="hireBtn">+ Recruit</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SHOP PANEL -->
+      <div id="panelShop" class="card" style="display:none; padding:12px; background: rgba(0,0,0,.18)">
+        <b>🛒 Shop</b>
+        <div class="tiny muted">Room tipi “Shop” gelince bonus olur ama buradan da alabilirsin.</div>
+        <div style="height:10px"></div>
+
+        <div class="miniGrid">
+          <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+            <b>🧪 Buffs (Smoke Token)</b>
+            <div class="tiny muted">HP/ATK/Crit/Dodge run içinde güçlendirir.</div>
+            <div style="height:10px"></div>
+
+            <div class="row">
+              <span class="pill">🛡 HP +10% (Lv <b id="uHpLv">0</b>)</span>
+              <button id="uHpBtn">Buy (<span id="uHpCost"></span>)</button>
+            </div>
+            <div style="height:8px"></div>
+
+            <div class="row">
+              <span class="pill">🗡 ATK +10% (Lv <b id="uAtkLv">0</b>)</span>
+              <button id="uAtkBtn">Buy (<span id="uAtkCost"></span>)</button>
+            </div>
+            <div style="height:8px"></div>
+
+            <div class="row">
+              <span class="pill">🎯 Crit +2% (Lv <b id="uCritLv">0</b>)</span>
+              <button id="uCritBtn">Buy (<span id="uCritCost"></span>)</button>
+            </div>
+            <div style="height:8px"></div>
+
+            <div class="row">
+              <span class="pill">🥾 Dodge +2% (Lv <b id="uDodgeLv">0</b>)</span>
+              <button id="uDodgeBtn">Buy (<span id="uDodgeCost"></span>)</button>
+            </div>
+          </div>
+
+          <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+            <b>🧰 Consumables</b>
+            <div class="tiny muted">Potion/mana/keys.</div>
+            <div style="height:10px"></div>
+
+            <div class="row">
+              <button id="buyPotionBtn" class="secondary">🧪 Heal Potion (+25% party)</button>
+              <span class="pill">150g</span>
+            </div>
+            <div style="height:8px"></div>
+
+            <div class="row">
+              <button id="buyManaBtn" class="secondary">✨ Mana Tonic (+12 mana)</button>
+              <span class="pill">120g</span>
+            </div>
+            <div style="height:8px"></div>
+
+            <div class="row">
+              <button id="buyKeyBtn" class="secondary">🗝 Buy Key (+1)</button>
+              <span class="pill">220g</span>
+            </div>
+
+            <div style="height:12px"></div>
+            <b>👩‍🍳 Tavern Staff</b>
+            <div class="tiny muted">Maid staff: +gold +visitor +boss loot (sadece staff, romantik değil).</div>
+            <div style="height:8px"></div>
+            <div class="row">
+              <span class="pill">🧹 Maid: <b id="maidOwned">No</b></span>
+              <button id="buyMaidBtn">Hire (800 gold)</button>
+            </div>
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+          <b>🗝 Chest</b>
+          <div class="tiny muted">Key ile chest aç → daha iyi loot.</div>
+          <div style="height:10px"></div>
+          <div class="row">
+            <button id="openChestBtn">📦 Open Chest (1 Key)</button>
+            <span class="pill">Loot: <b id="lastLoot">-</b></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- INVENTORY PANEL -->
+      <div id="panelInventory" class="card" style="display:none; padding:12px; background: rgba(0,0,0,.18)">
+        <b>🎒 Inventory & Equip</b>
+        <div class="tiny muted">Item seç → bir üyeye equip et. (Weapon/Armor/Trinket)</div>
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <select id="equipMemberPick"></select>
+          <button id="sellAllCommonBtn" class="secondary">💸 Sell Common</button>
+        </div>
+
+        <div style="height:10px"></div>
+        <div class="inv" id="invList"></div>
+      </div>
+
+      <!-- PRESTIGE PANEL -->
+      <div id="panelPrestige" class="card" style="display:none; padding:12px; background: rgba(0,0,0,.18)">
+        <b>♻️ Prestige (Reincarnate)</b>
+        <div class="tiny muted">Run’u sıfırla → “Souls” kazan → meta upgrade al.</div>
+        <div style="height:10px"></div>
+
+        <div class="row">
+          <span class="pill">👻 Souls: <b id="souls">0</b></span>
+          <span class="pill">🏅 Lifetime Best Depth: <b id="bestAll2">1</b></span>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="card" style="padding:12px; background: rgba(255,255,255,.05)">
+          <b>🧬 Meta Upgrades</b>
+          <div class="tiny muted">Souls ile kalıcı güç.</div>
+          <div style="height:10px"></div>
+
+          <div class="row">
+            <span class="pill">💰 Gold Gain +5% (Lv <b id="mGoldLv">0</b>)</span>
+            <button id="mGoldBtn">Buy (<span id="mGoldCost"></span>)</button>
+          </div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <span class="pill">🗡 ATK +5% (Lv <b id="mAtkLv">0</b>)</span>
+            <button id="mAtkBtn">Buy (<span id="mAtkCost"></span>)</button>
+          </div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <span class="pill">🛡 HP +5% (Lv <b id="mHpLv">0</b>)</span>
+            <button id="mHpBtn">Buy (<span id="mHpCost"></span>)</button>
+          </div>
+          <div style="height:8px"></div>
+
+          <div class="row">
+            <span class="pill">🧿 Keep Relic Slots (Lv <b id="mKeepLv">0</b>)</span>
+            <button id="mKeepBtn">Buy (<span id="mKeepCost"></span>)</button>
+          </div>
+
+          <div class="tiny muted" style="margin-top:10px">
+            Keep slots: Reincarnate edince rastgele 0-3 relic’i yanında taşırsın (level’e göre).
+          </div>
+        </div>
+
+        <div style="height:12px"></div>
+
+        <div class="row">
+          <button id="reincBtn" class="danger">♻️ Reincarnate Now</button>
+          <span class="pill">Earn: <b id="earnSouls">0</b> souls</span>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- STORY MODAL -->
+  <div id="storyModal" style="
+    position:fixed; inset:0; display:none; z-index:9999;
+    background: rgba(0,0,0,.72);
+    padding: 18px; align-items:center; justify-content:center;">
+    <div style="
+      max-width: 720px; width:100%;
+      background: rgba(8,12,24,.96);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 16px;
+      padding: 14px;">
+      <div class="row" style="justify-content:space-between; align-items:center">
+        <b id="storyTitle">Story</b>
+        <button id="storyClose" class="secondary">Continue</button>
+      </div>
+      <div id="storyText" class="tiny" style="white-space:pre-wrap; margin-top:10px; line-height:1.35rem; color:#dbe0ff"></div>
+    </div>
+  </div>
+</main>
+
+<div class="footbar">
+  <span class="pill">📱 iPhone: Safari → Paylaş → Ana Ekrana Ekle</span>
+</div>
+
+<script>
+(() => {
+  const $ = (id) => document.getElementById(id);
+
+  // ---------- STORY ----------
+  const STORY = {
+    intro: `🎬 PROLOG — RAP & DRAGONS
+
+Tavernanın adı: “Kapasite Yetmediği İçin Büyütülen Yer”.
+Bir gün tavernanın bodrumundan bir kapı açıldı:
+Üstünde tek bir yazı vardı: “AUTO-EXPLORE”.
+
+İlk başta herkes bunu “kolay loot” sandı.
+Ta ki 10. odada miniboss çıkana kadar…
+
+Her 100 odada bir gürültüyle gelen bir şövalye belirir:
+B0K-III, The Noise Knight.
+
+Ama asıl mesele şu:
+Dungeon’ın en dibinde keşfet algoritmasının efendisi bekliyor…
+
+😈 EBO, The Algorithm Lord
+“Ben trendim. Ben autoplay’im.”`,
+
+    final: `🎬 FINAL CUTSCENE
+
+Dungeon’ın en derin katında,
+WiFi çekmeyen bir mağarada
+EBO, Algorithm Lord tahtında oturuyordu.
+
+“Ben keşfetim.”
+“Ben trendim.”
+“Ben autoplay’im.”
+
+Ama party’nin crit’i,
+mana regen’i
+ve tavernadaki 12 tabure
+onu durdurdu.
+
+Right Hand B0K-III yere düştü,
+distortion sustu.
+
+EBO son sözünü söyledi:
+“Bu sadece beta sürümdü...”
+
+Ve algorithm çöktü.
+
+Türkiye gündemi 3 saniyeliğine sakinleşti.
+
+Ama uzaklardan bir bildirim sesi geldi:
+“Yeni sezon başladı.”
+
+♻️ Prestige zamanı.`
+  };
+
+  function showStory(title, text){
+    $("storyTitle").textContent = title;
+    $("storyText").textContent = text;
+    $("storyModal").style.display = "flex";
+    S.paused = true;
+    renderAll();
+  }
+  function hideStory(){
+    $("storyModal").style.display = "none";
+    S.paused = false;
+    renderAll();
+  }
+  $("storyClose").onclick = hideStory;
+
+  // ---------- SFX (no files) ----------
+  let SFX_MUTED = false;
+  let audioCtx = null;
+  function sfx(freq=440, dur=0.06, type="square", vol=0.035){
+    if(SFX_MUTED) return;
+    try{
+      if(!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const t0 = audioCtx.currentTime;
+      const o = audioCtx.createOscillator();
+      const g = audioCtx.createGain();
+      o.type = type;
+      o.frequency.setValueAtTime(freq, t0);
+      g.gain.setValueAtTime(0.0001, t0);
+      g.gain.exponentialRampToValueAtTime(vol, t0+0.01);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0+dur);
+      o.connect(g); g.connect(audioCtx.destination);
+      o.start(t0); o.stop(t0+dur+0.02);
+    }catch(e){}
+  }
+
+  // ---------- FX (hit/crit flash + shake) ----------
+  let FX = { flash:0, shake:0 };
+  function triggerHitFX(isCrit=false){
+    FX.flash = isCrit ? 10 : 6;
+    FX.shake = isCrit ? 12 : 7;
+  }
+
+  // ---------- Content pools ----------
+  const RAPPER_NAMES = [
+    "Khontkar","Ezhel","D3","Abugat","Orchi","Metth",
+    "Young Bego","Young Ouzo","Şam",
+    "Uzi","Ceza","Sagopa","Şehinşah","Allame","Contra","No.1","Joker","Hayki",
+    "Gazapizm","Motive","Murda","Ben Fero","Ati242","Patron","Şanışer"
+  ];
+
+  const CLASSES = [
+    { name:"Rogue",  icon:"🗡️", hp:[30,42], atk:[7,11], crit:0.10, dodge:0.10, heal:0.00, perk:"gold" },
+    { name:"Fighter",icon:"🛡️", hp:[44,62], atk:[6,10], crit:0.06, dodge:0.05, heal:0.00, perk:"bash" },
+    { name:"Cleric", icon:"✨",  hp:[36,52], atk:[5,9],  crit:0.05, dodge:0.05, heal:0.10, perk:"aura" },
+    { name:"Mage",   icon:"🔮",  hp:[28,40], atk:[8,13], crit:0.08, dodge:0.07, heal:0.00, perk:"burst" }
+  ];
+
+  const ENEMIES = [
+    { n:"Goblin Scout", hp:30, atk:5, ac:10, trait:"Sneaky", sp:"dodge" },
+    { n:"Orc Brute", hp:52, atk:7, ac:11, trait:"Rage", sp:"rage" },
+    { n:"Skeleton", hp:44, atk:6, ac:12, trait:"Undead", sp:"resist" },
+    { n:"Wraith", hp:38, atk:8, ac:13, trait:"Ethereal", sp:"drain" },
+    { n:"Mimic Chest", hp:60, atk:7, ac:12, trait:"Trap", sp:"crit" },
+    { n:"Cultist", hp:40, atk:6, ac:11, trait:"Hex", sp:"weak" },
+    { n:"Ogre", hp:78, atk:9, ac:10, trait:"Big", sp:"stun" },
+    { n:"Dragon Whelp", hp:92, atk:10, ac:13, trait:"Fire", sp:"burn" }
+  ];
+
+  const RARITIES = [
+    { name:"Common", w: 62, mult: 1.00, sell: 20 },
+    { name:"Rare", w: 25, mult: 1.25, sell: 60 },
+    { name:"Epic", w: 10, mult: 1.55, sell: 160 },
+    { name:"Legendary", w: 3, mult: 2.00, sell: 420 }
+  ];
+
+  const RELICS = [
+    { id:"coin", name:"Coin Idol", desc:"+10% gold gain", apply:(m)=>{ m.goldGain += 0.10; } },
+    { id:"spark", name:"Spark Rune", desc:"+1 mana regen/turn", apply:(m)=>{ m.manaRegen += 1; } },
+    { id:"fang", name:"Fang Charm", desc:"+5% crit", apply:(m)=>{ m.critFlat += 0.05; } },
+    { id:"cloak", name:"Shadow Cloak", desc:"+5% dodge", apply:(m)=>{ m.dodgeFlat += 0.05; } },
+    { id:"anvil", name:"Anvil Sigil", desc:"+8% ATK (party)", apply:(m)=>{ m.atkMult += 0.08; } },
+    { id:"oak", name:"Oak Totem", desc:"+8% HP (party)", apply:(m)=>{ m.hpMult += 0.08; } },
+    { id:"ward", name:"Ward Stone", desc:"Start fight with Shield (1 turn)", apply:(m)=>{ m.startShield += 1; } },
+    { id:"smoke", name:"Smokestack", desc:"+15% Smoke Token drop", apply:(m)=>{ m.smokeGain += 0.15; } },
+  ];
+
+  // ---------- Utils ----------
+  function randInt(a,b){ return Math.floor(Math.random()*(b-a+1))+a; }
+  function clamp(v,a,b){ return Math.max(a, Math.min(b, v)); }
+  function d20(){ return randInt(1,20); }
+  function pick(arr){ return arr[randInt(0, arr.length-1)]; }
+  function weightedPick(items, weightKey="w"){
+    const sum = items.reduce((s,it)=>s+(it[weightKey]||0),0);
+    let r = Math.random()*sum;
+    for(const it of items){
+      r -= (it[weightKey]||0);
+      if(r<=0) return it;
+    }
+    return items[items.length-1];
+  }
+  function idGen(){ return Math.random().toString(16).slice(2) + "-" + Math.random().toString(16).slice(2); }
+
+  // ---------- META ----------
+  const defaultMeta = () => ({
+    souls: 0,
+    bestAll: 1,
+    clears: 0,
+    finalBossDepth: 100,
+    upgrades: { gold:0, atk:0, hp:0, keep:0 }
+  });
+
+  // ---------- RUN STATE ----------
+  const defaultState = () => ({
+    gold: 0,
+    smokes: 0,
+    keys: 0,
+    floor: 1,
+    roomNo: 1,
+    bestRun: 1,
+    paused: false,
+    auto: true,
+    speed: 1,
+
+    roomType: "Fight",
+    roomResolved: false,
+    pendingEvent: null,
+
+    upgrades: { hp:0, atk:0, crit:0, dodge:0 },
+    tavern: { beds:0, stools:0, tables:0, visitors:[], maid:false },
+
+    party: [],
+    enemy: null,
+    lastAttacker: 0,
+
+    mana: 30,
+    manaMax: 30,
+    cds: { fire:0, weak:0, shield:0, heal:0 },
+    buffs: { shieldTurns:0 },
+    enemyDebuffs: { weakTurns:0 },
+
+    inventory: [],
+    lastLootName: "-",
+
+    relics: [],
+
+    flags: { introShown:false },
+
+    _lastVisitorTick: 0
+  });
+
+  // ---------- SAVE SLOTS ----------
+  function slotId(){ return $("slotPick")?.value || "1"; }
+  function metaKey(){ return `rap_dragons_meta_slot_${slotId()}`; }
+  function runKey(){ return `rap_dragons_run_slot_${slotId()}`; }
+
+  function saveAll(){
+    localStorage.setItem(metaKey(), JSON.stringify(META));
+    localStorage.setItem(runKey(), JSON.stringify(S));
+    log(`ℹ️ Saved (Slot ${slotId()}).`);
+  }
+  function loadMeta(){
+    try{ const raw = localStorage.getItem(metaKey()); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+  }
+  function loadRun(){
+    try{ const raw = localStorage.getItem(runKey()); return raw ? JSON.parse(raw) : null; }catch(e){ return null; }
+  }
+  function loadAllFromSlot(){
+    const m = loadMeta();
+    const r = loadRun();
+    if(!m || !r){
+      log(`ℹ️ Slot ${slotId()} boş.`);
+      return;
+    }
+    META = m; S = r;
+    fixSave();
+    renderAll();
+    log(`📂 Loaded (Slot ${slotId()}).`);
+  }
+  function resetAll(){
+    localStorage.removeItem(metaKey());
+    localStorage.removeItem(runKey());
+    META = defaultMeta();
+    S = defaultState();
+    initNewRun(true);
+    renderAll();
+    log(`ℹ️ Reset (Slot ${slotId()}).`);
+  }
+
+  let META = loadMeta() || defaultMeta();
+  let S = loadRun() || defaultState();
+
+  // ---------- Logging ----------
+  function log(msg){
+    const box = $("log");
+    const p = document.createElement("p");
+    p.textContent = msg;
+    box.appendChild(p);
+    box.scrollTop = box.scrollHeight;
+  }
+
+  // ---------- Tavern derived ----------
+  function visitorCap(){ return 2 + S.tavern.beds + S.tavern.stools + S.tavern.tables; }
+  function partyCap(){
+    return clamp(2 + Math.floor(S.tavern.beds/2) + Math.floor(S.tavern.tables/3) + Math.floor(S.tavern.stools/4), 2, 6);
+  }
+  function classQualityBonus(){
+    return clamp(S.tavern.tables*0.06 + S.tavern.beds*0.08 + S.tavern.stools*0.03, 0, 0.45);
+  }
+  function visitorFillIntervalMs(){
+    const base = 6500;
+    const f = (S.tavern.beds*0.10 + S.tavern.tables*0.08 + S.tavern.stools*0.06);
+    const maidBonus = S.tavern.maid ? 0.10 : 0.0;
+    return Math.floor(base * (1 - clamp(f + maidBonus, 0, 0.55)));
+  }
+
+  // ---------- Costs ----------
+  const hireCost = () => 70 + (S.party.length * 110) + Math.floor(S.floor*2.2);
+  const smokeCost = (lv) => 2 + lv;
+  const bedCost = () => 200 + S.tavern.beds * 170;
+  const stoolCost = () => 140 + S.tavern.stools * 120;
+  const tableCost = () => 260 + S.tavern.tables * 190;
+
+  // ---------- Relic modifiers ----------
+  function getRelicMods(){
+    const m = { goldGain:0, smokeGain:0, manaRegen:0, critFlat:0, dodgeFlat:0, atkMult:0, hpMult:0, startShield:0 };
+    for(const rid of S.relics){
+      const r = RELICS.find(x=>x.id===rid);
+      if(r && r.apply) r.apply(m);
+    }
+    return m;
+  }
+
+  // ---------- Names/Classes ----------
+  function uniqueName(){
+    let nm = pick(RAPPER_NAMES);
+    let guard = 0;
+    while(S.party.some(p => p.name === nm) && guard++ < 50) nm = pick(RAPPER_NAMES);
+    return nm;
+  }
+  function pickClass(requested){
+    if(requested && requested !== "ANY"){
+      return CLASSES.find(c=>c.name===requested) || pick(CLASSES);
+    }
+    const q = classQualityBonus();
+    const weights = CLASSES.map(c => {
+      let w = 25;
+      if(c.name === "Mage" || c.name === "Cleric") w += Math.floor(q*120);
+      if(c.name === "Fighter") w += 8;
+      if(c.name === "Rogue") w += 6;
+      return { c, w };
+    });
+    return weightedPick(weights, "w").c;
+  }
+
+  // ---------- Member/Enemy ----------
+  function makeMember(name=null, requestedClass="ANY"){
+    const cls = pickClass(requestedClass);
+    const hpBase = randInt(cls.hp[0], cls.hp[1]);
+    const atkBase = randInt(cls.atk[0], cls.atk[1]);
+    const m = {
+      name: name ?? uniqueName(),
+      className: cls.name,
+      classIcon: cls.icon,
+      perk: cls.perk,
+      lv: 1,
+      xp: 0,
+      hpBase, atkBase,
+      hpMax: hpBase, hp: hpBase,
+      atk: atkBase,
+      critBase: cls.crit, dodgeBase: cls.dodge, healBase: cls.heal,
+      crit: cls.crit, dodge: cls.dodge, heal: cls.heal,
+      equip: { weapon:null, armor:null, trinket:null }
+    };
+    applyAllModsToMember(m);
+    return m;
+  }
+
+  function makeEnemy(floor, isBoss=false){
+    const base = pick(ENEMIES);
+    const lv = Math.max(1, Math.floor(1 + floor/2));
+    let hpMax = Math.floor(base.hp + lv*13 + floor*2.3);
+    let atk   = Math.floor(base.atk + lv*2.2 + floor*0.45);
+    let ac    = Math.floor(base.ac + lv*0.6);
+
+    let trait = base.trait;
+    if(isBoss){
+      hpMax = Math.floor(hpMax * 1.85);
+      atk   = Math.floor(atk * 1.28);
+      ac    = Math.floor(ac + 2);
+      trait = "BOSS";
+    }
+
+    return { name: base.n, lv, hpMax, hp: hpMax, atk, ac, trait, sp: base.sp, boss:isBoss };
+  }
+
+  // ---------- Equipment ----------
+  function rarityColor(r){
+    if(r==="Legendary") return "#ffcc66";
+    if(r==="Epic") return "#b85cff";
+    if(r==="Rare") return "#6b7cff";
+    return "#e9ecff";
+  }
+  function weightedRarity(boosted=false){
+    if(!boosted) return weightedPick(RARITIES,"w");
+    const boostedTbl = [
+      { name:"Common", w: 45, mult: 1.00, sell: 20 },
+      { name:"Rare", w: 32, mult: 1.25, sell: 60 },
+      { name:"Epic", w: 18, mult: 1.55, sell: 160 },
+      { name:"Legendary", w: 5, mult: 2.00, sell: 420 }
+    ];
+    return weightedPick(boostedTbl,"w");
+  }
+  function rollItem(forcedRarity=null){
+    const r = forcedRarity ? forcedRarity : weightedRarity(false);
+    const types = ["weapon","armor","trinket"];
+    const type = pick(types);
+    const baseNames = {
+      weapon: ["Dagger","Shortsword","Great Axe","Arc Wand","Shadow Knife","Steel Blade"],
+      armor: ["Leather Armor","Chainmail","Mage Robe","Dragonhide Vest","Bone Plate"],
+      trinket: ["Lucky Charm","Crit Ring","Dodge Talisman","HP Amulet","Rune Stone"]
+    };
+    const name = `${r.name} ${pick(baseNames[type])}`;
+    const mult = r.mult;
+
+    let stats = { hp:0, atk:0, crit:0, dodge:0 };
+    if(type==="weapon"){
+      stats.atk = Math.floor((3 + randInt(0,4)) * mult);
+      if(Math.random()<0.35) stats.crit = +(0.02*mult).toFixed(2);
+    }else if(type==="armor"){
+      stats.hp = Math.floor((10 + randInt(0,12)) * mult);
+      if(Math.random()<0.25) stats.dodge = +(0.02*mult).toFixed(2);
+    }else{
+      const roll = randInt(1,3);
+      if(roll===1){ stats.crit = +(0.03*mult).toFixed(2); stats.atk = Math.floor(1*mult); }
+      if(roll===2){ stats.dodge = +(0.03*mult).toFixed(2); stats.hp = Math.floor(6*mult); }
+      if(roll===3){ stats.hp = Math.floor(8*mult); stats.atk = Math.floor(2*mult); }
+    }
+
+    return { id:idGen(), name, rarity:r.name, type, stats, sell:r.sell };
+  }
+
+  function totalEquipStats(m){
+    const out = { hp:0, atk:0, crit:0, dodge:0 };
+    for(const slot of ["weapon","armor","trinket"]){
+      const it = m.equip?.[slot];
+      if(!it) continue;
+      out.hp += it.stats.hp || 0;
+      out.atk += it.stats.atk || 0;
+      out.crit += it.stats.crit || 0;
+      out.dodge += it.stats.dodge || 0;
+    }
+    return out;
+  }
+
+  function applyAllModsToMember(m){
+    const eq = totalEquipStats(m);
+    const relic = getRelicMods();
+
+    const hpMultRun = 1 + 0.10 * S.upgrades.hp + relic.hpMult;
+    const atkMultRun = 1 + 0.10 * S.upgrades.atk + relic.atkMult;
+
+    const hpMultMeta = 1 + 0.05 * (META.upgrades.hp || 0);
+    const atkMultMeta = 1 + 0.05 * (META.upgrades.atk || 0);
+
+    const critBonus = 0.02 * S.upgrades.crit + relic.critFlat;
+    const dodgeBonus = 0.02 * S.upgrades.dodge + relic.dodgeFlat;
+
+    const hpBase = m.hpBase + eq.hp;
+    const atkBase = m.atkBase + eq.atk;
+
+    m.hpMax = Math.floor(hpBase * hpMultRun * hpMultMeta);
+    m.atk   = Math.floor(atkBase * atkMultRun * atkMultMeta);
+
+    m.crit  = clamp(m.critBase + critBonus + eq.crit, 0, 0.50);
+    m.dodge = clamp(m.dodgeBase + dodgeBonus + eq.dodge, 0, 0.45);
+    m.heal  = clamp(m.healBase, 0, 0.25);
+
+    if(m.hp > m.hpMax) m.hp = m.hpMax;
+  }
+
+  function healPartyFull(){
+    for(const m of S.party){
+      applyAllModsToMember(m);
+      m.hp = m.hpMax;
+    }
+  }
+
+  function equipItem(member, item){
+    const slot = item.type;
+    S.inventory = S.inventory.filter(x => x.id !== item.id);
+    const old = member.equip[slot];
+    if(old) S.inventory.push(old);
+    member.equip[slot] = item;
+    applyAllModsToMember(member);
+    log(`🧩 ${member.name} equipped: ${item.name} (${item.rarity})`);
+    sfx(740,0.07,"triangle",0.03);
+  }
+
+  // ---------- Visitors ----------
+  function tickVisitors(now){
+    const cap = visitorCap();
+    if(S.tavern.visitors.length >= cap) return;
+
+    const interval = visitorFillIntervalMs();
+    if(!S._lastVisitorTick) S._lastVisitorTick = now;
+    if(now - S._lastVisitorTick < interval) return;
+    S._lastVisitorTick = now;
+
+    const cand = makeMember(uniqueName(), "ANY");
+    cand.hp = cand.hpMax;
+
+    S.tavern.visitors.push({ name: cand.name, className: cand.className, classIcon: cand.classIcon });
+    log(`🍺 Visitor geldi: ${cand.classIcon} ${cand.name} (${cand.className})`);
+  }
+
+  function inviteVisitorToParty(){
+    if(S.tavern.visitors.length === 0) return log("ℹ️ Visitor yok.");
+    if(S.party.length >= partyCap()) return log("ℹ️ Party dolu. Tavernayı büyüt.");
+
+    const v = S.tavern.visitors.shift();
+    const m = makeMember(v.name, v.className);
+    m.className = v.className; m.classIcon = v.classIcon;
+    applyAllModsToMember(m);
+
+    S.party.push(m);
+    log(`🎤 Invite: ${m.classIcon} ${m.name} — ${m.className}`);
+  }
+
+  // ---------- Boss rules ----------
+  function isMiniBoss(depth){ return depth % 10 === 0; }
+  function isRightHandBoss(depth){ return depth % 100 === 0 && depth !== META.finalBossDepth; }
+  function isFinalBoss(depth){ return depth === META.finalBossDepth; }
+
+  // ---------- Rooms ----------
+  function rollNextRoomType(depth){
+    if(isFinalBoss(depth)) return "FinalBoss";
+    if(isRightHandBoss(depth)) return "RightHand";
+    if(isMiniBoss(depth)) return "Boss";
+
+    const r = Math.random();
+    if(r < 0.62) return "Fight";
+    if(r < 0.74) return "Treasure";
+    if(r < 0.84) return "Event";
+    if(r < 0.92) return "Shop";
+    return "Tavern";
+  }
+
+  // ---------- Events ----------
+  function rollEvent(){
+    const pool = [
+      { id:"shrine", title:"Ancient Shrine", desc:"Taş bir sunak… enerji hissediyorsun." },
+      { id:"healer", title:"Wandering Healer", desc:"Bir healer mola vermiş…" },
+      { id:"merchant", title:"Shady Merchant", desc:"İndirimli ‘iyi’ şeyler… gibi." },
+      { id:"trap", title:"Trap Corridor", desc:"Koridor tuzaklı. Riskli ama ödüllü olabilir." }
+    ];
+    return pick(pool);
+  }
+
+  function partyDamagePercent(p){
+    for(const m of S.party){
+      const d = Math.floor(m.hpMax * p);
+      m.hp = Math.max(1, m.hp - d);
+    }
+  }
+
+  function maybeGainRelic(chance){
+    if(Math.random() > chance) { log("🧿 Relic gelmedi."); return; }
+    const available = RELICS.filter(r => !S.relics.includes(r.id));
+    if(available.length === 0){ log("🧿 Tüm relic’ler zaten sende."); return; }
+    const r = pick(available);
+    S.relics.push(r.id);
+    log(`🧿 RELIC: ${r.name} — ${r.desc}`);
+    sfx(900,0.08,"triangle",0.03);
+    healPartyFull();
+  }
+
+  function treasureRoomReward(){
+    const relicMods = getRelicMods();
+    const gBase = 120 + Math.floor(S.floor*2.2);
+    const g = gBase + randInt(0,80);
+    S.gold += g;
+    log(`💎 Treasure: +${g} gold`);
+
+    const smokeChance = clamp(0.25 + relicMods.smokeGain, 0, 0.80);
+    if(Math.random() < smokeChance){
+      const s = 1 + (Math.random()<0.20 ? 1 : 0);
+      S.smokes += s;
+      log(`🚬 +${s} Smoke Token`);
+    }
+
+    if(Math.random() < 0.55){
+      const it = rollItem();
+      S.inventory.push(it);
+      S.lastLootName = it.name;
+      log(`🎁 Drop: ${it.name} (${it.rarity})`);
+      sfx(740,0.07,"triangle",0.03);
+    }
+
+    maybeGainRelic(0.35);
+  }
+
+  function applyEventChoice(which){
+    const ev = S.pendingEvent;
+    if(!ev) return;
+
+    if(ev.id==="shrine"){
+      if(which==="A"){
+        S.gold = Math.max(0, S.gold-90);
+        log("🙏 Pray: -90g, relic chance!");
+        maybeGainRelic(0.60);
+      } else {
+        const g=140+randInt(0,60); S.gold+=g; log(`💰 Loot: +${g}g`);
+        if(Math.random()<0.25){ partyDamagePercent(0.12); log("🪤 Trap! party hp -12%"); }
+      }
+    }
+
+    if(ev.id==="healer"){
+      if(which==="A"){
+        if(S.gold<80){ log("ℹ️ Gold yetmedi."); return; }
+        S.gold-=80; healPartyFull(); log("✨ Party full heal (-80g)");
+      } else {
+        S.mana=Math.max(0,S.mana-8);
+        for(const m of S.party){ m.xp += 10; }
+        log("🏋️ Training: Party XP +10 (mana -8)");
+      }
+    }
+
+    if(ev.id==="merchant"){
+      if(which==="A"){
+        if(S.smokes<2){ log("ℹ️ Smoke yetmedi."); return; }
+        S.smokes-=2;
+        log("🧿 Merchant: relic guaranteed!");
+        maybeGainRelic(1.00);
+      } else {
+        if(S.gold<180){ log("ℹ️ Gold yetmedi."); return; }
+        S.gold-=180; S.keys+=1; log("🗝 +1 Key (-180g)");
+      }
+    }
+
+    if(ev.id==="trap"){
+      if(which==="A"){
+        if(Math.random()<0.5){ const g=180; S.gold+=g; log(`⚡ Dash success! +${g}g`); }
+        else { partyDamagePercent(0.18); log("💥 Dash fail! party hp -18%"); }
+      } else {
+        const g=90; S.gold+=g; log(`🧰 Disarm! +${g}g`);
+      }
+    }
+
+    S.roomResolved = true;
+    S.pendingEvent = null;
+    log("✅ Event çözüldü. Next Room!");
+  }
+
+  function startRoom(type){
+    S.roomType = type;
+    S.roomResolved = false;
+    S.pendingEvent = null;
+
+    // reset turn effects entering a room
+    S.buffs.shieldTurns = 0;
+    S.enemyDebuffs.weakTurns = 0;
+
+    const relic = getRelicMods();
+
+    if(type === "Fight"){
+      S.enemy = makeEnemy(S.floor, false);
+      if(relic.startShield > 0){
+        S.buffs.shieldTurns = Math.max(S.buffs.shieldTurns, relic.startShield);
+        log("🧿 Relic: Start Shield aktif.");
+      }
+      log(`⚔️ Fight Room: ${S.enemy.name} (Lv ${S.enemy.lv})`);
+      return;
+    }
+
+    if(type === "Boss"){
+      S.enemy = makeEnemy(S.floor, true);
+      S.enemy.name = `👑 ${S.enemy.name}`;
+      if(relic.startShield > 0){
+        S.buffs.shieldTurns = Math.max(S.buffs.shieldTurns, relic.startShield);
+        log("🧿 Relic: Start Shield aktif.");
+      }
+      log(`👑 Mini-Boss: ${S.enemy.name} (Lv ${S.enemy.lv})`);
+      sfx(220,0.12,"sawtooth",0.04);
+      return;
+    }
+
+    if(type === "RightHand"){
+      S.enemy = makeEnemy(S.floor, true);
+      S.enemy.name = "🦾 B0K-III, The Noise Knight";
+      S.enemy.hpMax = Math.floor(S.enemy.hpMax * 1.15);
+      S.enemy.hp = S.enemy.hpMax;
+      S.enemy.atk = Math.floor(S.enemy.atk * 1.10);
+      S.enemy.trait = "RIGHT HAND";
+      log(`🦾 RIGHT HAND BOSS: ${S.enemy.name}`);
+      sfx(180,0.14,"sawtooth",0.05);
+      return;
+    }
+
+    if(type === "FinalBoss"){
+      S.enemy = makeEnemy(S.floor, true);
+      S.enemy.name = "😈 EBO, The Algorithm Lord";
+      S.enemy.hpMax = Math.floor(S.enemy.hpMax * 1.45);
+      S.enemy.hp = S.enemy.hpMax;
+      S.enemy.atk = Math.floor(S.enemy.atk * 1.20);
+      S.enemy.trait = "FINAL";
+      log(`😈 FINAL BOSS: ${S.enemy.name} (Final at ${META.finalBossDepth})`);
+      sfx(140,0.18,"sawtooth",0.06);
+      return;
+    }
+
+    if(type === "Treasure"){
+      S.enemy = null;
+      log("💎 Treasure Room: loot zamanı.");
+      treasureRoomReward();
+      S.roomResolved = true;
+      return;
+    }
+
+    if(type === "Shop"){
+      S.enemy = null;
+      log("🛒 Shop Room: küçük bonus.");
+      S.gold += 40 + Math.floor(S.floor*1.3);
+      log("🛒 Shop bonus: +gold");
+      S.roomResolved = true;
+      return;
+    }
+
+    if(type === "Tavern"){
+      S.enemy = null;
+      log("🍺 Tavern Room: dinlenme.");
+      healPartyFull();
+      S.roomResolved = true;
+      return;
+    }
+
+    if(type === "Event"){
+      S.enemy = null;
+      S.pendingEvent = rollEvent();
+      log(`🎭 Event Room: ${S.pendingEvent.title}`);
+      return;
+    }
+  }
+
+  function nextRoom(){
+    if(S.roomType === "Event" && !S.roomResolved){
+      log("ℹ️ Event seçimi yapmadan ilerleyemezsin.");
+      return;
+    }
+    if((S.roomType === "Fight" || S.roomType === "Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss") && !S.roomResolved){
+      log("ℹ️ Fight bitmeden ilerleyemezsin.");
+      return;
+    }
+
+    S.floor++;
+    S.roomNo++;
+    S.bestRun = Math.max(S.bestRun, S.floor);
+    META.bestAll = Math.max(META.bestAll, S.floor);
+
+    const t = rollNextRoomType(S.floor);
+    startRoom(t);
+  }
+
+  function flee(){
+    S.gold = Math.max(0, Math.floor(S.gold * 0.92));
+    S.mana = Math.max(0, S.mana - 6);
+    log("🏃 Flee! Gold -8% ve mana -6.");
+    S.roomResolved = true;
+    nextRoom();
+  }
+
+  // ---------- Spells ----------
+  function spendMana(cost){
+    if(S.mana < cost) { log("✨ Mana yetmedi."); return false; }
+    S.mana -= cost;
+    return true;
+  }
+  function cdReady(k){ return (S.cds[k] || 0) <= 0; }
+
+  function castFireball(){
+    if(!(S.roomType==="Fight" || S.roomType==="Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss")) return log("ℹ️ Fireball sadece fight room.");
+    const cost = 12, cd = 5;
+    if(!cdReady("fire")) return log("🔥 Fireball cooldown!");
+    if(!spendMana(cost)) return;
+
+    S.cds.fire = cd;
+    let dmg = 18 + Math.floor(S.floor*0.6) + randInt(0,10);
+    if(S.enemy?.trait==="FINAL" && Math.random()<0.25) dmg = Math.floor(dmg*0.85);
+    S.enemy.hp = Math.max(0, S.enemy.hp - dmg);
+    log(`🔥 Fireball! Enemy -${dmg} (HP ${S.enemy.hp}/${S.enemy.hpMax})`);
+    triggerHitFX(false);
+    sfx(620,0.06,"square",0.03);
+    if(S.enemy.hp <= 0) winRoom(true);
+  }
+
+  function castWeakness(){
+    if(!(S.roomType==="Fight" || S.roomType==="Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss")) return log("ℹ️ Weakness sadece fight room.");
+    const cost = 10, cd = 6;
+    if(!cdReady("weak")) return log("🕸 Weakness cooldown!");
+    if(!spendMana(cost)) return;
+
+    S.cds.weak = cd;
+    S.enemyDebuffs.weakTurns = 4;
+    log("🕸 Weakness: Enemy ATK düşürüldü (4 turns).");
+    sfx(420,0.06,"triangle",0.028);
+  }
+
+  function castShield(){
+    if(!(S.roomType==="Fight" || S.roomType==="Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss")) return log("ℹ️ Shield sadece fight room.");
+    const cost = 10, cd = 6;
+    if(!cdReady("shield")) return log("🛡 Shield cooldown!");
+    if(!spendMana(cost)) return;
+
+    S.cds.shield = cd;
+    S.buffs.shieldTurns = 4;
+    log("🛡 Shield: Party damage azaltma (4 turns).");
+    sfx(520,0.06,"sine",0.03);
+  }
+
+  function castHeal(){
+    const cost = 14, cd = 6;
+    if(!cdReady("heal")) return log("✨ Heal cooldown!");
+    if(!spendMana(cost)) return;
+
+    S.cds.heal = cd;
+
+    const alive = living();
+    if(alive.length === 0) return log("✨ Kimse hayatta değil.");
+    let t = alive[0];
+    for(const m of alive){
+      if(m.hp/m.hpMax < t.hp/t.hpMax) t = m;
+    }
+    const amt = 22 + randInt(0,10);
+    t.hp = Math.min(t.hpMax, t.hp + amt);
+    log(`✨ Heal: ${t.name} +${amt} HP (${t.hp}/${t.hpMax})`);
+    sfx(760,0.07,"triangle",0.03);
+  }
+
+  function endTurnTick(){
+    const relic = getRelicMods();
+    for(const k of Object.keys(S.cds)) S.cds[k] = Math.max(0, (S.cds[k]||0) - 1);
+    if(S.buffs.shieldTurns > 0) S.buffs.shieldTurns--;
+    if(S.enemyDebuffs.weakTurns > 0) S.enemyDebuffs.weakTurns--;
+
+    const regen = 2 + (S.tavern.maid ? 1 : 0) + (relic.manaRegen || 0);
+    S.mana = Math.min(S.manaMax, S.mana + regen);
+  }
+
+  // ---------- Combat ----------
+  function living(){ return S.party.filter(p => p.hp > 0); }
+  function partyAlive(){ return living().length > 0; }
+
+  function clericAura(alive){
+    if(Math.random() < 0.25){
+      const t = pick(alive);
+      const amt = 3 + randInt(0,3);
+      t.hp = Math.min(t.hpMax, t.hp + amt);
+      log(`✨ Aura: ${t.name} +${amt} HP`);
+    }
+  }
+
+  function partyTurn(){
+    const alive = living();
+    if(alive.length === 0) return;
+
+    const attacker = alive[S.lastAttacker % alive.length];
+    S.lastAttacker++;
+
+    const roll = d20();
+    const toHit = roll + Math.floor(attacker.atk / 2);
+    const hit = (roll === 20) || (toHit >= S.enemy.ac);
+
+    let goldBonus = 0;
+    let dmgBonus = 0;
+    if(attacker.perk === "gold" && Math.random() < 0.12) goldBonus += 7;
+    if(attacker.perk === "bash" && Math.random() < 0.10) dmgBonus += 4;
+    if(attacker.perk === "burst" && Math.random() < 0.10) dmgBonus += 6;
+
+    if(!hit){
+      log(`🎲 ${attacker.classIcon} ${attacker.name} kaçırdı! (d20=${roll})`);
+      if(attacker.perk === "aura") clericAura(alive);
+      return { goldBonus:0 };
+    }
+
+    let dmg = Math.max(1, attacker.atk + randInt(-1,2) + dmgBonus);
+    const crit = (roll === 20) || (Math.random() < attacker.crit);
+    if(crit) dmg = Math.floor(dmg * 1.6);
+
+    if(S.enemy.sp === "resist" && Math.random() < 0.18) dmg = Math.floor(dmg * 0.75);
+
+    S.enemy.hp = Math.max(0, S.enemy.hp - dmg);
+    log(`🗡️ ${attacker.classIcon} ${attacker.name} vurdu: -${dmg}${crit?" (CRIT!)":""} (Enemy ${S.enemy.hp}/${S.enemy.hpMax})`);
+
+    triggerHitFX(crit);
+    if(crit){ sfx(880,0.08,"sawtooth",0.045); sfx(660,0.06,"square",0.03); }
+    else { sfx(520,0.05,"square",0.03); }
+
+    if(attacker.heal > 0 && Math.random() < attacker.heal){
+      const amt = Math.max(2, Math.floor(attacker.atk * 0.6));
+      attacker.hp = Math.min(attacker.hpMax, attacker.hp + amt);
+      log(`✨ ${attacker.name} heal: +${amt} (${attacker.hp}/${attacker.hpMax})`);
+    }
+    if(attacker.perk === "aura") clericAura(alive);
+
+    if(S.enemy.hp <= 0) winRoom(false, goldBonus);
+    return { goldBonus };
+  }
+
+  function enemyTurn(){
+    const alive = living();
+    if(alive.length === 0) return;
+
+    const target = pick(alive);
+
+    if(Math.random() < target.dodge){
+      log(`🌀 ${target.name} kaçındı!`);
+      return;
+    }
+
+    const roll = d20();
+    let enemyAtk = S.enemy.atk;
+    if(S.enemyDebuffs.weakTurns > 0) enemyAtk = Math.floor(enemyAtk * 0.78);
+
+    const toHit = roll + Math.floor(enemyAtk/2);
+    const targetAC = 10 + Math.floor(target.lv/2);
+    const hit = (roll === 20) || (toHit >= targetAC);
+
+    if(!hit){
+      log(`👾 ${S.enemy.name} kaçırdı! (d20=${roll})`);
+      return;
+    }
+
+    let dmg = Math.max(1, enemyAtk + randInt(-2,2));
+    const crit = (roll === 20) || (S.enemy.sp === "crit" && Math.random() < 0.12);
+    if(crit) dmg = Math.floor(dmg * 1.5);
+
+    if(S.enemy.sp === "drain" && Math.random() < 0.14){
+      dmg += 3;
+      S.enemy.hp = Math.min(S.enemy.hpMax, S.enemy.hp + 3);
+      log(`🩸 ${S.enemy.name} drain! (+3 HP)`);
+    }
+    if(S.enemy.sp === "burn" && Math.random() < 0.14){
+      dmg += 4;
+      log(`🔥 Burn! ekstra hasar`);
+    }
+
+    if(S.buffs.shieldTurns > 0) dmg = Math.floor(dmg * 0.78);
+
+    target.hp = Math.max(0, target.hp - dmg);
+    log(`👾 ${S.enemy.name} ${target.name}’e vurdu: -${dmg}${crit?" (CRIT!)":""} (${target.hp}/${target.hpMax})`);
+
+    triggerHitFX(crit);
+    if(crit){ sfx(320,0.10,"sawtooth",0.05); }
+    else { sfx(260,0.06,"square",0.03); }
+
+    if(!partyAlive()) loseRun();
+  }
+
+  function stepCombatTurn(){
+    if(!(S.roomType==="Fight" || S.roomType==="Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss")) return;
+    if(S.roomResolved) return;
+    if(!S.enemy || S.enemy.hp <= 0) return;
+    if(!partyAlive()) return;
+
+    partyTurn();
+    if(S.enemy && S.enemy.hp > 0) enemyTurn();
+    endTurnTick();
+  }
+
+  function loseRun(){
+    log(`💀 Party wipe! (Gold %15 gider, oda reset)`);
+    S.gold = Math.max(0, Math.floor(S.gold * 0.85));
+    healPartyFull();
+    // reset current to same-type fight
+    if(S.roomType==="FinalBoss") startRoom("FinalBoss");
+    else if(S.roomType==="RightHand") startRoom("RightHand");
+    else if(S.roomType==="Boss") startRoom("Boss");
+    else startRoom("Fight");
+  }
+
+  // ---------- Win room ----------
+  function winRoom(fromSpell=false, extraGold=0){
+    const relic = getRelicMods();
+
+    // FINAL BOSS özel: “bitirince final depth +100”
+    if(S.roomType === "FinalBoss"){
+      log("🏁 RUN COMPLETED! Final Boss düştü.");
+      showStory("FINAL", STORY.final);
+
+      META.clears = (META.clears || 0) + 1;
+      META.finalBossDepth = 100 * (META.clears + 1);
+
+      S.keys += 2;
+      S.smokes += 2;
+
+      S.auto = false;
+      S.roomResolved = true;
+
+      log(`✅ Clears: ${META.clears}. Sonraki Final: ${META.finalBossDepth}. (Prestige → Reincarnate)`);
+      saveAll(); // auto save clear
+      return;
+    }
+
+    let gainedGold = 24 + Math.floor(S.floor*3.2) + randInt(0,12) + (extraGold||0);
+    gainedGold = Math.floor(gainedGold * (1 + 0.05*(META.upgrades.gold||0)));
+    gainedGold = Math.floor(gainedGold * (1 + (relic.goldGain||0)));
+    if(S.tavern.maid) gainedGold = Math.floor(gainedGold * 1.10);
+
+    let smokeChance = clamp(0.14 + Math.floor(S.floor/10)*0.03 + (S.tavern.maid?0.04:0) + (relic.smokeGain||0), 0, 0.80);
+    let smokeDrop = (Math.random() < smokeChance) ? 1 : 0;
+
+    // Boss types reward
+    if(S.roomType === "Boss" || S.roomType==="RightHand"){
+      S.keys += 1;
+      gainedGold = Math.floor(gainedGold * (S.roomType==="RightHand" ? 1.55 : 1.35));
+      if(Math.random() < (S.tavern.maid ? 0.40 : 0.25)) smokeDrop += 1;
+      log(`🗝️ Boss reward: +1 Key!`);
+      maybeGainRelic(S.roomType==="RightHand" ? 0.70 : 0.55);
+    }
+
+    S.gold += gainedGold;
+    S.smokes += smokeDrop;
+
+    log(`✅ Room clear! +${gainedGold} gold ${smokeDrop?`+${smokeDrop} Smoke Token 🚬`:""}`);
+
+    // xp + level
+    for(const m of living()){
+      m.xp += 9 + Math.floor(S.floor/3);
+      const need = 26 + (m.lv-1)*18;
+      if(m.xp >= need){
+        m.xp -= need;
+        m.lv++;
+        m.hpBase += 6;
+        m.atkBase += 2;
+        applyAllModsToMember(m);
+        log(`✨ ${m.name} Level ${m.lv}!`);
+        sfx(820,0.07,"triangle",0.03);
+      }
+    }
+
+    const baseItemChance = (S.roomType==="Boss" || S.roomType==="RightHand") ? 0.55 : 0.20;
+    const maidBonus = S.tavern.maid ? 0.05 : 0;
+    const spellBonus = fromSpell ? 0.03 : 0;
+    if(Math.random() < clamp(baseItemChance + maidBonus + spellBonus, 0, 0.80)){
+      const it = rollItem();
+      S.inventory.push(it);
+      S.lastLootName = it.name;
+      log(`🎁 Drop: ${it.name} (${it.rarity})`);
+      sfx(740,0.07,"triangle",0.03);
+    }
+
+    S.roomResolved = true;
+
+    if(S.auto) nextRoom();
+  }
+
+  // ---------- Consumables ----------
+  function healPotion(){
+    if(S.gold < 150){ log("ℹ️ Gold yetmedi."); return; }
+    S.gold -= 150;
+    for(const m of S.party){
+      const add = Math.floor(m.hpMax * 0.25);
+      m.hp = Math.min(m.hpMax, m.hp + add);
+    }
+    log("🧪 Potion: party +25% HP");
+    sfx(760,0.06,"triangle",0.03);
+  }
+  function manaTonic(){
+    if(S.gold < 120){ log("ℹ️ Gold yetmedi."); return; }
+    S.gold -= 120;
+    S.mana = Math.min(S.manaMax, S.mana + 12);
+    log("✨ Mana Tonic: +12 mana");
+    sfx(820,0.06,"triangle",0.03);
+  }
+  function buyKey(){
+    if(S.gold < 220){ log("ℹ️ Gold yetmedi."); return; }
+    S.gold -= 220;
+    S.keys += 1;
+    log("🗝 +1 Key");
+    sfx(560,0.06,"square",0.03);
+  }
+  function openChest(){
+    if(S.keys <= 0) return log("🗝️ Key yok.");
+    S.keys -= 1;
+    const r = weightedRarity(true);
+    const it = rollItem(r);
+    S.inventory.push(it);
+    S.lastLootName = it.name;
+    log(`📦 Chest → ${it.name} (${it.rarity})`);
+    sfx(900,0.08,"triangle",0.035);
+  }
+
+  // ---------- Run upgrades ----------
+  function buySmokeUpgrade(key){
+    const cost = smokeCost(S.upgrades[key]);
+    if(S.smokes < cost) return log("ℹ️ Smoke yetmedi.");
+    S.smokes -= cost;
+    S.upgrades[key]++;
+    healPartyFull();
+    log(`🚬 Buff: ${key.toUpperCase()} Lv ${S.upgrades[key]}`);
+    sfx(640,0.06,"triangle",0.03);
+  }
+
+  // ---------- Tavern upgrades ----------
+  function buyBed(){
+    const cost = bedCost();
+    if(S.gold < cost) return log("ℹ️ Gold yetmedi.");
+    S.gold -= cost;
+    S.tavern.beds++;
+    S.manaMax = Math.min(70, S.manaMax + 2);
+    log(`🛏️ Bed +1 (ManaMax +2)`);
+  }
+  function buyStool(){
+    const cost = stoolCost();
+    if(S.gold < cost) return log("ℹ️ Gold yetmedi.");
+    S.gold -= cost;
+    S.tavern.stools++;
+    log(`🪑 Stool +1`);
+  }
+  function buyTable(){
+    const cost = tableCost();
+    if(S.gold < cost) return log("ℹ️ Gold yetmedi.");
+    S.gold -= cost;
+    S.tavern.tables++;
+    log(`🧾 Table +1`);
+  }
+  function buyMaid(){
+    if(S.tavern.maid) return;
+    if(S.gold < 800) return log("ℹ️ Gold yetmedi.");
+    S.gold -= 800;
+    S.tavern.maid = true;
+    S.manaMax = Math.min(70, S.manaMax + 4);
+    log("🧹 Maid hired! ManaMax +4");
+    sfx(520,0.10,"sine",0.03);
+  }
+
+  // ---------- Prestige ----------
+  function soulsEarnedFromDepth(bestDepth){
+    const d = Math.max(1, bestDepth);
+    return Math.max(0, Math.floor(Math.pow(d/10, 1.25)));
+  }
+  function metaCost(base, lv){ return base * (lv+1) * (lv+1); }
+  function buyMeta(which){
+    const lv = META.upgrades[which] || 0;
+    const base = (which==="keep") ? 6 : 4;
+    const cost = metaCost(base, lv);
+    if(META.souls < cost) return log("ℹ️ Souls yetmedi.");
+    META.souls -= cost;
+    META.upgrades[which] = lv + 1;
+    log(`♻️ Meta upgrade: ${which.toUpperCase()} Lv ${META.upgrades[which]}`);
+    sfx(860,0.07,"triangle",0.03);
+  }
+  function reincarnate(){
+    const earn = soulsEarnedFromDepth(S.bestRun);
+    if(earn <= 0){ log("ℹ️ Daha yüksek depth kas, souls gelsin."); return; }
+
+    META.souls += earn;
+
+    const keepLv = META.upgrades.keep || 0;
+    const keepSlots = clamp(Math.floor(keepLv/2), 0, 3);
+    let kept = [];
+    if(keepSlots > 0 && S.relics.length > 0){
+      const pool = S.relics.slice();
+      while(kept.length < keepSlots && pool.length){
+        const i = randInt(0, pool.length-1);
+        kept.push(pool.splice(i,1)[0]);
+      }
+    }
+
+    const oldBest = S.bestRun;
+    S = defaultState();
+    S.relics = kept;
+    initNewRun(false);
+    log(`♻️ Reincarnate! +${earn} souls. (Kept relics: ${kept.length}) RunBest was ${oldBest}.`);
+    saveAll();
+  }
+
+  // ---------- Admin (lightweight) ----------
+  const ADMIN = { enabled:false, pass:"ege-ozel-9871" }; // <-- bunu değiştir
+  function openAdminPrompt(){
+    const p = prompt("Admin şifresi:");
+    if(p === null) return;
+    if(p === ADMIN.pass){
+      ADMIN.enabled = true;
+      log("🛠️ ADMIN: aktif.");
+      sfx(900,0.08,"triangle",0.03);
+    } else {
+      log("❌ ADMIN: yanlış şifre.");
+    }
+  }
+  function adminCmd(){
+    if(!ADMIN.enabled){ log("ℹ️ Admin kapalı."); return; }
+    const cmd = prompt("Admin komutu:\n- gold 999\n- smokes 50\n- keys 10\n- relic all\n- skiproom\n- depth 120");
+    if(!cmd) return;
+
+    const parts = cmd.trim().split(/\s+/);
+    const a = parts[0]?.toLowerCase();
+    const b = parts[1];
+    const num = (x) => Number(x);
+
+    try{
+      if(a === "gold"){ S.gold = Math.max(0, num(b)||0); log(`🛠️ gold=${S.gold}`); }
+      else if(a === "smokes"){ S.smokes = Math.max(0, num(b)||0); log(`🛠️ smokes=${S.smokes}`); }
+      else if(a === "key" || a === "keys"){ S.keys = Math.max(0, num(b)||0); log(`🛠️ keys=${S.keys}`); }
+      else if(a === "heal"){ healPartyFull(); log("🛠️ party full heal"); }
+      else if(a === "relic"){
+        if((b||"").toLowerCase()==="all"){
+          S.relics = RELICS.map(r=>r.id);
+          healPartyFull();
+          log("🛠️ all relics added");
+        } else {
+          const r = RELICS.find(r=>r.id===b);
+          if(!r) log("❌ relic id yok");
+          else { if(!S.relics.includes(r.id)) S.relics.push(r.id); healPartyFull(); log(`🛠️ relic added: ${r.name}`); }
+        }
+      }
+      else if(a === "skiproom"){ S.roomResolved = true; nextRoom(); log("🛠️ skipped"); }
+      else if(a === "depth"){
+        const d = Math.max(1, num(b)||1);
+        S.floor = d; S.roomNo = d;
+        S.bestRun = Math.max(S.bestRun, d);
+        META.bestAll = Math.max(META.bestAll, d);
+        startRoom(rollNextRoomType(S.floor));
+        log(`🛠️ depth set: ${d}`);
+      }
+      else {
+        log("❓ Komut yok. Örnek: gold 999 / smokes 50 / keys 10 / relic all / skiproom / depth 120");
+      }
+    } catch(e){
+      log("❌ Admin hata: " + e.message);
+    }
+    renderAll();
+  }
+
+  // header 4-tap for admin
+  let adminTapCount = 0;
+  let adminTapTimer = null;
+  document.querySelector("header h1")?.addEventListener("click", ()=>{
+    adminTapCount++;
+    clearTimeout(adminTapTimer);
+    adminTapTimer = setTimeout(()=> adminTapCount=0, 800);
+    if(adminTapCount >= 4){
+      adminTapCount = 0;
+      openAdminPrompt();
+    }
+  });
+
+  // ---------- Pixel scene ----------
+  const canvas = $("scene");
+  const ctx = canvas.getContext("2d");
+  function pxRect(x,y,w,h,color){ ctx.fillStyle = color; ctx.fillRect(x,y,w,h); }
+  function drawSprite(x,y,scale,palette,pattern){
+    for(let yy=0; yy<pattern.length; yy++){
+      const row = pattern[yy];
+      for(let xx=0; xx<row.length; xx++){
+        const c = row[xx];
+        if(c === ".") continue;
+        pxRect(x + xx*scale, y + yy*scale, scale, scale, palette[c] || "#fff");
+      }
+    }
+  }
+
+  const SPRITES = {
+    hero: { pal:{ "1":"#e9ecff","2":"#38d39f","3":"#6b7cff","4":"#ffcc66","5":"#2a2f55" },
+      pat:[
+        "....1111....","...14441....","...13331....","..1133311...",
+        "..1155511...","...15551....","..2222222...","..2..2..2...",
+        "..2..2..2...","..2..2..2...","..2..2..2...","....2..2...."
+      ]},
+    enemy:{ pal:{ "1":"#e9ecff","2":"#ff4d6d","3":"#b85cff","4":"#2a2f55" },
+      pat:[
+        "....3333....","...322223...","..32211223..","..32111123..",
+        "..32111123..","...211112...","..3332333...","..3..22.3...",
+        ".....22.....","....2..2....","...2....2...","............"
+      ]},
+    tavern:{ pal:{ "1":"#d9a066","2":"#6b4a2b","3":"#2a2f55","4":"#e9ecff" },
+      pat:[
+        "2222222222222222","2111111111111112","2111111111111112",
+        "2111111441111112","2111111441111112","2111111111111112",
+        "2111111111111112","2111111111111112","2222222222222222"
+      ]},
+    maid:{ pal:{ "1":"#e9ecff","2":"#2a2f55","3":"#ffcc66","4":"#6b7cff" },
+      pat:[
+        "...1111....","..122221...","..123321...","..122221...",
+        "...1441....","..111111...","..1.22.1...","..1.22.1...",
+        "...2..2....","...2..2....","............"
+      ]},
+    ebo:{ pal:{ "1":"#e9ecff","2":"#ff4d6d","3":"#b85cff","4":"#2a2f55","5":"#ffcc66" },
+      pat:[
+        "....333333....",
+        "...32222223...",
+        "..3222111223..",
+        "..3211111123..",
+        "..3211551123..",
+        "...21111112...",
+        "..333244233...",
+        "..3..244..3...",
+        "....24442.....",
+        "...2..2..2....",
+        "..2....5...2..",
+        ".............."
+      ]},
+    bok3:{ pal:{ "1":"#e9ecff","2":"#6b7cff","3":"#2a2f55","4":"#38d39f" },
+      pat:[
+        "....222222....",
+        "...2333332....",
+        "..233111332...",
+        "..231111132...",
+        "..231141132...",
+        "...3111113....",
+        "..222333222...",
+        "..2..33..2....",
+        "....33........",
+        "...3..3.......",
+        "..3....3......",
+        ".............."
+      ]}
+  };
+
+  function renderScene(){
+    const W = canvas.width, H = canvas.height;
+
+    const sx = FX.shake ? randInt(-FX.shake, FX.shake) : 0;
+    const sy = FX.shake ? randInt(-FX.shake, FX.shake) : 0;
+    ctx.setTransform(1,0,0,1,sx,sy);
+
+    ctx.clearRect(0,0,W,H);
+    ctx.fillStyle = "#0a0f22"; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle = "rgba(56,211,159,.10)"; ctx.fillRect(0,H-64,W,64);
+
+    drawSprite(36, 36, 4, SPRITES.tavern.pal, SPRITES.tavern.pat);
+
+    for(let i=0;i<S.party.length;i++){
+      const x = 170 + i*90;
+      const y = 150;
+      drawSprite(x,y,4, SPRITES.hero.pal, SPRITES.hero.pat);
+      ctx.fillStyle = "rgba(233,236,255,.85)";
+      ctx.font = "16px system-ui";
+      ctx.fillText(S.party[i].name, x-10, y-10);
+    }
+
+    if(S.enemy){
+      const isFinal = (S.roomType === "FinalBoss");
+      const isRH = (S.roomType === "RightHand");
+      const sp = isFinal ? SPRITES.ebo : (isRH ? SPRITES.bok3 : SPRITES.enemy);
+      const scale = isFinal ? 6 : (isRH ? 6 : 5);
+      drawSprite(700, 130, scale, sp.pal, sp.pat);
+
+      ctx.fillStyle = "rgba(233,236,255,.85)";
+      ctx.font = "16px system-ui";
+      ctx.fillText(S.enemy.name, 640, 128);
+    }
+
+    if(S.tavern.maid){
+      drawSprite(110, 170, 4, SPRITES.maid.pal, SPRITES.maid.pat);
+      ctx.fillStyle = "rgba(233,236,255,.75)";
+      ctx.font = "14px system-ui";
+      ctx.fillText("Maid Staff", 88, 162);
+    }
+
+    ctx.fillStyle = "rgba(233,236,255,.75)";
+    ctx.font = "14px system-ui";
+    ctx.fillText(`Beds:${S.tavern.beds}  Tables:${S.tavern.tables}  Stools:${S.tavern.stools}`, 40, 24);
+
+    const sb = S.buffs.shieldTurns>0 ? `Shield(${S.buffs.shieldTurns})` : "";
+    const wk = S.enemyDebuffs.weakTurns>0 ? `Weak(${S.enemyDebuffs.weakTurns})` : "";
+    ctx.fillStyle = "rgba(233,236,255,.70)";
+    ctx.font = "13px system-ui";
+    ctx.fillText(`${sb} ${wk}`.trim(), 420, 24);
+
+    ctx.fillStyle = "rgba(233,236,255,.70)";
+    ctx.font = "13px system-ui";
+    ctx.fillText(`Room: ${S.roomType}`, 820, 24);
+
+    // flash overlay
+    ctx.setTransform(1,0,0,1,0,0);
+    if(FX.flash > 0){
+      ctx.fillStyle = `rgba(255,255,255,${FX.flash * 0.05})`;
+      ctx.fillRect(0,0,W,H);
+      FX.flash--;
+    }
+    if(FX.shake > 0) FX.shake--;
+    ctx.setTransform(1,0,0,1,0,0);
+  }
+
+  // ---------- UI helpers ----------
+  function rarityBadgeHTML(r){
+    const col = rarityColor(r);
+    return `<span class="badge" style="border-color:${col}; color:${col}">${r}</span>`;
+  }
+  function statLine(s){
+    const parts = [];
+    if(s.hp) parts.push(`HP +${s.hp}`);
+    if(s.atk) parts.push(`ATK +${s.atk}`);
+    if(s.crit) parts.push(`Crit +${Math.round(s.crit*100)}%`);
+    if(s.dodge) parts.push(`Dodge +${Math.round(s.dodge*100)}%`);
+    return parts.join(" • ") || "-";
+  }
+
+  function renderInventory(){
+    const list = $("invList");
+    list.innerHTML = "";
+    if(S.inventory.length === 0){
+      list.innerHTML = `<div class="tiny muted">Inventory boş. Treasure/Boss/Chest ile item kas.</div>`;
+      return;
+    }
+    for(const it of S.inventory.slice().reverse()){
+      const div = document.createElement("div");
+      div.className = "item";
+      div.innerHTML = `
+        <div class="top">
+          <div><b>${it.name}</b> ${rarityBadgeHTML(it.rarity)}</div>
+          <span class="badge">${it.type.toUpperCase()}</span>
+        </div>
+        <div class="tiny muted">${statLine(it.stats)}</div>
+        <div class="row">
+          <button class="secondary" data-equip="${it.id}">Equip</button>
+          <button class="secondary" data-sell="${it.id}">Sell (+${it.sell}g)</button>
+        </div>
+      `;
+      list.appendChild(div);
+    }
+  }
+
+  function renderMemberPick(){
+    const sel = $("equipMemberPick");
+    sel.innerHTML = "";
+    S.party.forEach((m, idx) => {
+      const op = document.createElement("option");
+      op.value = String(idx);
+      op.textContent = `${m.classIcon} ${m.name} (${m.className})`;
+      sel.appendChild(op);
+    });
+  }
+
+  function renderRelics(){
+    const row = $("relicRow");
+    row.innerHTML = "";
+    if(S.relics.length === 0){
+      const sp = document.createElement("span");
+      sp.className = "pill";
+      sp.textContent = "— none —";
+      row.appendChild(sp);
+      return;
+    }
+    for(const rid of S.relics){
+      const r = RELICS.find(x=>x.id===rid);
+      const sp = document.createElement("span");
+      sp.className = "pill";
+      sp.textContent = r ? `🧿 ${r.name}` : `🧿 ${rid}`;
+      row.appendChild(sp);
+    }
+  }
+
+  function renderAll(){
+    $("roomType").textContent = S.roomType;
+    $("roomNo").textContent = S.roomNo;
+    $("floor").textContent = S.floor;
+
+    $("gold").textContent = S.gold;
+    $("smokes").textContent = S.smokes;
+    $("keys").textContent = S.keys;
+
+    $("mana").textContent = S.mana;
+    $("manaMax").textContent = S.manaMax;
+
+    $("cap").textContent = partyCap();
+    $("visitors").textContent = S.tavern.visitors.length;
+    $("visCap").textContent = visitorCap();
+
+    $("bestRun").textContent = S.bestRun;
+    $("bestAll").textContent = META.bestAll;
+    $("bestAll2").textContent = META.bestAll;
+    $("clears").textContent = META.clears || 0;
+    $("finalAt").textContent = META.finalBossDepth || 100;
+
+    if(S.enemy){
+      $("enemyName").textContent = `${S.enemy.name} (Lv ${S.enemy.lv})`;
+      $("enemyLv").textContent = S.enemy.lv;
+      $("enemyHp").textContent = S.enemy.hp;
+      $("enemyHpMax").textContent = S.enemy.hpMax;
+      $("enemyAtk").textContent = S.enemy.atk;
+      $("enemyAc").textContent = S.enemy.ac;
+      $("enemyTrait").textContent = S.enemy.trait || "-";
+      const hpPct = S.enemy.hpMax ? (S.enemy.hp / S.enemy.hpMax) * 100 : 0;
+      $("enemyHpBar").style.width = `${Math.max(0, hpPct)}%`;
+    }else{
+      $("enemyName").textContent = "-";
+      $("enemyLv").textContent = "-";
+      $("enemyHp").textContent = "0";
+      $("enemyHpMax").textContent = "0";
+      $("enemyAtk").textContent = "0";
+      $("enemyAc").textContent = "0";
+      $("enemyTrait").textContent = "-";
+      $("enemyHpBar").style.width = "0%";
+    }
+
+    const deb = [];
+    if(S.enemyDebuffs.weakTurns>0) deb.push(`Weak(${S.enemyDebuffs.weakTurns})`);
+    $("enemyDebuffs").textContent = deb.length?deb.join(", "):"-";
+
+    const pb = [];
+    if(S.buffs.shieldTurns>0) pb.push(`Shield(${S.buffs.shieldTurns})`);
+    $("partyBuffs").textContent = pb.length?pb.join(", "):"-";
+
+    const partyDiv = $("party");
+    partyDiv.innerHTML = "";
+    S.party.forEach((m, idx) => {
+      applyAllModsToMember(m);
+      const eq = m.equip || {};
+      const eqText = [
+        eq.weapon ? `W:${eq.weapon.rarity}` : "W:-",
+        eq.armor ? `A:${eq.armor.rarity}` : "A:-",
+        eq.trinket ? `T:${eq.trinket.rarity}` : "T:-"
+      ].join(" • ");
+      const wrap = document.createElement("div");
+      wrap.className = "member";
+      wrap.innerHTML = `
+        <div class="top">
+          <div class="name">${m.classIcon} ${m.name} <span class="tiny muted">Lv ${m.lv} • ${m.className}</span></div>
+          <button class="secondary" data-kick="${idx}">Kick</button>
+        </div>
+        <div class="tiny muted">HP</div>
+        <div class="bar"><i style="width:${(m.hp/m.hpMax)*100}%"></i></div>
+        <div class="row tiny">
+          <span class="pill">❤️ ${m.hp}/${m.hpMax}</span>
+          <span class="pill">🗡️ ATK ${m.atk}</span>
+          <span class="pill">🎯 Crit ${(m.crit*100).toFixed(0)}%</span>
+          <span class="pill">🥾 Dodge ${(m.dodge*100).toFixed(0)}%</span>
+          <span class="pill">🎒 ${eqText}</span>
+        </div>
+      `;
+      partyDiv.appendChild(wrap);
+    });
+
+    $("toggleBtn").textContent = S.paused ? "▶️ Resume" : "⏸ Pause";
+    $("autoBtn").textContent = S.auto ? "🤖 Auto: ON" : "🤖 Auto: OFF";
+    $("muteBtn").textContent = SFX_MUTED ? "🔇 SFX" : "🔊 SFX";
+
+    $("spellFire").disabled = !(S.roomType==="Fight"||S.roomType==="Boss"||S.roomType==="RightHand"||S.roomType==="FinalBoss") || !cdReady("fire") || S.mana < 12 || S.roomResolved;
+    $("spellWeak").disabled = !(S.roomType==="Fight"||S.roomType==="Boss"||S.roomType==="RightHand"||S.roomType==="FinalBoss") || !cdReady("weak") || S.mana < 10 || S.roomResolved;
+    $("spellShield").disabled = !(S.roomType==="Fight"||S.roomType==="Boss"||S.roomType==="RightHand"||S.roomType==="FinalBoss") || !cdReady("shield") || S.mana < 10 || S.roomResolved;
+    $("spellHeal").disabled = !cdReady("heal") || S.mana < 14;
+
+    $("bedsLv").textContent = S.tavern.beds;
+    $("stoolsLv").textContent = S.tavern.stools;
+    $("tablesLv").textContent = S.tavern.tables;
+    $("bedCost").textContent = `${bedCost()} gold`;
+    $("stoolCost").textContent = `${stoolCost()} gold`;
+    $("tableCost").textContent = `${tableCost()} gold`;
+    $("buyBedBtn").disabled = S.gold < bedCost();
+    $("buyStoolBtn").disabled = S.gold < stoolCost();
+    $("buyTableBtn").disabled = S.gold < tableCost();
+
+    $("hireCost").textContent = hireCost();
+    $("hireBtn").disabled = (S.party.length >= partyCap()) || (S.gold < hireCost());
+
+    $("uHpLv").textContent = S.upgrades.hp;
+    $("uAtkLv").textContent = S.upgrades.atk;
+    $("uCritLv").textContent = S.upgrades.crit;
+    $("uDodgeLv").textContent = S.upgrades.dodge;
+    $("uHpCost").textContent = `${smokeCost(S.upgrades.hp)} smoke`;
+    $("uAtkCost").textContent = `${smokeCost(S.upgrades.atk)} smoke`;
+    $("uCritCost").textContent = `${smokeCost(S.upgrades.crit)} smoke`;
+    $("uDodgeCost").textContent = `${smokeCost(S.upgrades.dodge)} smoke`;
+    $("uHpBtn").disabled = S.smokes < smokeCost(S.upgrades.hp);
+    $("uAtkBtn").disabled = S.smokes < smokeCost(S.upgrades.atk);
+    $("uCritBtn").disabled = S.smokes < smokeCost(S.upgrades.crit);
+    $("uDodgeBtn").disabled = S.smokes < smokeCost(S.upgrades.dodge);
+
+    $("maidOwned").textContent = S.tavern.maid ? "Yes" : "No";
+    $("buyMaidBtn").disabled = S.tavern.maid || S.gold < 800;
+
+    $("openChestBtn").disabled = S.keys <= 0;
+    $("lastLoot").textContent = S.lastLootName || "-";
+
+    $("souls").textContent = META.souls;
+    const earn = soulsEarnedFromDepth(S.bestRun);
+    $("earnSouls").textContent = earn;
+
+    $("mGoldLv").textContent = META.upgrades.gold || 0;
+    $("mAtkLv").textContent = META.upgrades.atk || 0;
+    $("mHpLv").textContent = META.upgrades.hp || 0;
+    $("mKeepLv").textContent = META.upgrades.keep || 0;
+
+    const cg = metaCost(4, META.upgrades.gold||0);
+    const ca = metaCost(4, META.upgrades.atk||0);
+    const ch = metaCost(4, META.upgrades.hp||0);
+    const ck = metaCost(6, META.upgrades.keep||0);
+
+    $("mGoldCost").textContent = `${cg} souls`;
+    $("mAtkCost").textContent = `${ca} souls`;
+    $("mHpCost").textContent = `${ch} souls`;
+    $("mKeepCost").textContent = `${ck} souls`;
+
+    $("mGoldBtn").disabled = META.souls < cg;
+    $("mAtkBtn").disabled = META.souls < ca;
+    $("mHpBtn").disabled = META.souls < ch;
+    $("mKeepBtn").disabled = META.souls < ck;
+
+    if(S.roomType==="Event" && !S.roomResolved && S.pendingEvent){
+      $("eventBox").style.display = "block";
+      $("eventTitle").textContent = S.pendingEvent.title;
+      $("eventDesc").textContent = S.pendingEvent.desc;
+
+      const labels = {
+        shrine:{ A:"Pray (+Relic chance, -gold)", B:"Loot it (+gold, trap risk)" },
+        healer:{ A:"Heal (party full, -gold)", B:"Training (+xp, -mana)" },
+        merchant:{ A:"Buy Relic (smokes -2)", B:"Buy Key (-gold)" },
+        trap:{ A:"Dash (50% success)", B:"Disarm (safe, small loot)" }
+      };
+      const lab = labels[S.pendingEvent.id] || {A:"Option A", B:"Option B"};
+      $("eventA").textContent = lab.A;
+      $("eventB").textContent = lab.B;
+    }else{
+      $("eventBox").style.display = "none";
+    }
+
+    renderRelics();
+    renderMemberPick();
+    renderInventory();
+    renderScene();
+  }
+
+  // ---------- Tabs ----------
+  function setTab(which){
+    $("tabRun").classList.toggle("active", which==="run");
+    $("tabTavern").classList.toggle("active", which==="tavern");
+    $("tabShop").classList.toggle("active", which==="shop");
+    $("tabInventory").classList.toggle("active", which==="inv");
+    $("tabPrestige").classList.toggle("active", which==="prestige");
+
+    $("panelRun").style.display = (which==="run") ? "block" : "none";
+    $("panelTavern").style.display = (which==="tavern") ? "block" : "none";
+    $("panelShop").style.display = (which==="shop") ? "block" : "none";
+    $("panelInventory").style.display = (which==="inv") ? "block" : "none";
+    $("panelPrestige").style.display = (which==="prestige") ? "block" : "none";
+  }
+  $("tabRun").onclick = () => setTab("run");
+  $("tabTavern").onclick = () => setTab("tavern");
+  $("tabShop").onclick = () => setTab("shop");
+  $("tabInventory").onclick = () => setTab("inv");
+  $("tabPrestige").onclick = () => setTab("prestige");
+
+  // ---------- UI bindings ----------
+  $("toggleBtn").onclick = () => { S.paused = !S.paused; renderAll(); };
+  $("saveBtn").onclick = saveAll;
+  $("loadBtn").onclick = loadAllFromSlot;
+  $("resetBtn").onclick = resetAll;
+
+  $("autoBtn").onclick = () => { S.auto = !S.auto; renderAll(); };
+  $("nextRoomBtn").onclick = () => { nextRoom(); renderAll(); };
+  $("fleeBtn").onclick = () => { flee(); renderAll(); };
+
+  $("muteBtn").onclick = () => {
+    SFX_MUTED = !SFX_MUTED;
+    renderAll();
+  };
+
+  $("adminBtn").onclick = () => adminCmd();
+
+  $("spellFire").onclick = () => { castFireball(); renderAll(); };
+  $("spellWeak").onclick = () => { castWeakness(); renderAll(); };
+  $("spellShield").onclick = () => { castShield(); renderAll(); };
+  $("spellHeal").onclick = () => { castHeal(); renderAll(); };
+
+  $("eventA").onclick = () => { applyEventChoice("A"); renderAll(); };
+  $("eventB").onclick = () => { applyEventChoice("B"); renderAll(); };
+
+  $("buyBedBtn").onclick = () => { buyBed(); renderAll(); };
+  $("buyStoolBtn").onclick = () => { buyStool(); renderAll(); };
+  $("buyTableBtn").onclick = () => { buyTable(); renderAll(); };
+  $("inviteBtn").onclick = () => { inviteVisitorToParty(); renderAll(); };
+  $("clearVisitorsBtn").onclick = () => { S.tavern.visitors = []; log("🧹 Visitor list temizlendi."); renderAll(); };
+
+  $("hireBtn").onclick = () => {
+    if(S.party.length >= partyCap()) return log("ℹ️ Party dolu. Tavernayı büyüt.");
+    const cost = hireCost();
+    if(S.gold < cost) return log("ℹ️ Gold yetmedi.");
+    S.gold -= cost;
+    const requested = $("classPick").value;
+    const m = makeMember(null, requested);
+    S.party.push(m);
+    log(`➕ Recruit: ${m.classIcon} ${m.name} — ${m.className}`);
+    renderAll();
+  };
+
+  $("uHpBtn").onclick = () => { buySmokeUpgrade("hp"); renderAll(); };
+  $("uAtkBtn").onclick = () => { buySmokeUpgrade("atk"); renderAll(); };
+  $("uCritBtn").onclick = () => { buySmokeUpgrade("crit"); renderAll(); };
+  $("uDodgeBtn").onclick = () => { buySmokeUpgrade("dodge"); renderAll(); };
+
+  $("buyPotionBtn").onclick = () => { healPotion(); renderAll(); };
+  $("buyManaBtn").onclick = () => { manaTonic(); renderAll(); };
+  $("buyKeyBtn").onclick = () => { buyKey(); renderAll(); };
+  $("buyMaidBtn").onclick = () => { buyMaid(); renderAll(); };
+
+  $("openChestBtn").onclick = () => { openChest(); renderAll(); };
+
+  $("mGoldBtn").onclick = () => { buyMeta("gold"); renderAll(); };
+  $("mAtkBtn").onclick = () => { buyMeta("atk"); renderAll(); };
+  $("mHpBtn").onclick = () => { buyMeta("hp"); renderAll(); };
+  $("mKeepBtn").onclick = () => { buyMeta("keep"); renderAll(); };
+  $("reincBtn").onclick = () => { reincarnate(); renderAll(); };
+
+  $("sellAllCommonBtn").onclick = () => {
+    const before = S.inventory.length;
+    let gained = 0;
+    S.inventory = S.inventory.filter(it => {
+      if(it.rarity === "Common"){ gained += it.sell; return false; }
+      return true;
+    });
+    S.gold += gained;
+    log(`💸 Sold commons: +${gained} gold (removed ${before - S.inventory.length} items)`);
+    renderAll();
+  };
+
+  document.addEventListener("click", (e) => {
+    const kick = e.target.closest("button[data-kick]");
+    if(kick){
+      const idx = Number(kick.dataset.kick);
+      if(Number.isNaN(idx)) return;
+      if(S.party.length <= 1) return log("ℹ️ En az 1 kişi kalmalı.");
+      const kicked = S.party.splice(idx,1)[0];
+      log(`👋 Kicked: ${kicked.name}`);
+      renderAll();
+      return;
+    }
+    const eq = e.target.closest("button[data-equip]");
+    if(eq){
+      const id = eq.dataset.equip;
+      const it = S.inventory.find(x => x.id === id);
+      if(!it) return;
+      const idx = Number($("equipMemberPick").value || "0");
+      const m = S.party[idx];
+      if(!m) return;
+      equipItem(m, it);
+      renderAll();
+      return;
+    }
+    const sell = e.target.closest("button[data-sell]");
+    if(sell){
+      const id = sell.dataset.sell;
+      const it = S.inventory.find(x => x.id === id);
+      if(!it) return;
+      S.inventory = S.inventory.filter(x => x.id !== id);
+      S.gold += it.sell;
+      log(`💸 Sold: ${it.name} (+${it.sell}g)`);
+      sfx(360,0.06,"square",0.03);
+      renderAll();
+      return;
+    }
+  });
+
+  // ---------- Fix save ----------
+  function fixSave(){
+    const D = defaultState();
+    S = Object.assign(D, S || {});
+    S.upgrades = S.upgrades || D.upgrades;
+    S.tavern = S.tavern || D.tavern;
+    S.tavern.visitors = S.tavern.visitors || [];
+    if(typeof S.tavern.maid !== "boolean") S.tavern.maid = false;
+
+    S.inventory = S.inventory || [];
+    if(typeof S.lastLootName !== "string") S.lastLootName = "-";
+
+    if(typeof S.mana !== "number") S.mana = 30;
+    if(typeof S.manaMax !== "number") S.manaMax = 30;
+    S.cds = S.cds || { fire:0, weak:0, shield:0, heal:0 };
+    S.buffs = S.buffs || { shieldTurns:0 };
+    S.enemyDebuffs = S.enemyDebuffs || { weakTurns:0 };
+
+    S.relics = S.relics || [];
+    S.flags = S.flags || { introShown:false };
+
+    S.party = S.party || [];
+    for(const m of S.party){
+      if(!m.equip) m.equip = { weapon:null, armor:null, trinket:null };
+    }
+
+    META = META || defaultMeta();
+    META.upgrades = META.upgrades || { gold:0, atk:0, hp:0, keep:0 };
+    if(typeof META.souls !== "number") META.souls = 0;
+    if(typeof META.bestAll !== "number") META.bestAll = 1;
+    if(typeof META.clears !== "number") META.clears = 0;
+    if(typeof META.finalBossDepth !== "number") META.finalBossDepth = 100;
+  }
+
+  function initNewRun(firstTime){
+    if(S.party.length === 0){
+      const first = makeMember("Khontkar", "ANY");
+      S.party.push(first);
+    }
+    healPartyFull();
+
+    const startType = rollNextRoomType(S.floor);
+    startRoom(startType);
+
+    S.bestRun = Math.max(S.bestRun||1, S.floor);
+    META.bestAll = Math.max(META.bestAll||1, S.floor);
+
+    if(firstTime){
+      log("🎮 Başladı! Room sistemi aktif: Fight/Treasure/Event/Boss/RightHand/FinalBoss.");
+      log("🧿 Treasure/Event/Boss → relic düşebilir. Prestige panelinden Reincarnate.");
+    }
+
+    if(!S.flags.introShown){
+      S.flags.introShown = true;
+      showStory("PROLOG", STORY.intro);
+    }
+  }
+
+  // ---------- Loop ----------
+  const baseTick = 700;
+  function loop(){
+    const now = Date.now();
+    tickVisitors(now);
+
+    if(!S.paused){
+      if(S.roomType==="Fight" || S.roomType==="Boss" || S.roomType==="RightHand" || S.roomType==="FinalBoss"){
+        if(!S.roomResolved) stepCombatTurn();
+      }
+
+      if(S.auto){
+        if(S.roomResolved && S.roomType !== "Event"){
+          if(Math.random() < 0.18) nextRoom();
+        }
+      }
+
+      if(Math.random() < 0.05){
+        localStorage.setItem(runKey(), JSON.stringify(S));
+        localStorage.setItem(metaKey(), JSON.stringify(META));
+      }
+    }
+
+    renderAll();
+    const interval = Math.floor(baseTick * (S.speed===1?1:(S.speed===2?0.62:0.44)));
+    setTimeout(loop, interval);
+  }
+
+  // ---------- Boot ----------
+  fixSave();
+  initNewRun(false);
+  renderAll();
+  loop();
+})();
+</script>
+</body>
+</html>
